@@ -34,7 +34,10 @@ def extract_well_index(well):
 
 def get_pos_info(file):
     """
-    Parses out the position and run attributes from the name of the input file
+    Parses out the position and run attributes from the name of the input file. Images are currently taken of
+    3x3 positions at a time on a flipped over plate. Due to the flip, left-to-right orientation is reversed, which
+    is why there's logic to take the difference when calculating the column's index.
+        e.g. 'P05c2_002_001.tif' -> [46, 58, 'c2']
 
     :param (str) file: Name of file, e.g. "A01c1_002_003.tif"
     :return str[]: array of row, column, and run
@@ -53,7 +56,7 @@ def get_pos_info(file):
 
     # Wells are 3x3
     row = (row_idx * 3) + rel_row
-    col = (col_idx * 3) + rel_col
+    col = 73 - ((col_idx * 3) + rel_col)
 
     return [row, col, run]
 

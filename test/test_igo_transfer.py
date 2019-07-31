@@ -36,12 +36,16 @@ class TestIgoTransfer(unittest.TestCase):
     def verify_file_contents(self, directory):
         print('Verifying file contents of dir: %s' % directory)
         test_dic = {
-            'R01_C01_0000_00_c1.tif': 'A01c1_001_001.tif',
-            'R04_C04_0000_00_c1.tif': 'B02c1_001_001.tif',
-            'R70_C70_0000_00_c1.tif': 'X24c1_001_001.tif',
-            'R14_C15_0000_00_c2.tif': 'E05c2_003_002.tif',
-            'R71_C41_0000_00_c2.tif': 'X14c2_002_002.tif',
-
+            'R01_C01_0000_00_c1.tif': 'A24c1_003_001.tif',
+            'R01_C69_0000_00_c1.tif': 'A02c1_001_001.tif',
+            'R02_C68_0000_00_c1.tif': 'A02c1_002_002.tif',
+            'R03_C69_0000_00_c1.tif': 'A02c1_001_003.tif',
+            'R03_C68_0000_00_c1.tif': 'A02c1_002_003.tif',
+            'R30_C26_0000_00_c1.tif': 'J16c1_002_003.tif',
+            'R46_C59_0000_00_c2.tif': 'P05c2_002_001.tif',
+            'R70_C03_0000_00_c1.tif': 'X24c1_001_001.tif',
+            'R71_C01_0000_00_c2.tif': 'X24c2_003_002.tif',
+            'R71_C72_0000_00_c1.tif': 'X01c1_001_002.tif'
         }
         expected_file_ct = 10368  # 72*72*2
         actual_file_ct = 0
@@ -83,13 +87,33 @@ class TestIgoTransfer(unittest.TestCase):
     def test_get_pos_info(self):
         [row, col, run] = get_pos_info('A15c2_002_003.tif')
         self.assertEqual(row, 3)
-        self.assertEqual(col, 44)
+        self.assertEqual(col, 29)
         self.assertEqual(run, 'c2')
 
-        [row, col, run] = get_pos_info('Z22c1_003_001.tif')
-        self.assertEqual(row, 76)
-        self.assertEqual(col, 66)
+        [row, col, run] = get_pos_info('P22c1_003_001.tif')
+        self.assertEqual(row, 46)
+        self.assertEqual(col, 7)
         self.assertEqual(run, 'c1')
+
+        [row, col, run] = get_pos_info('X24c2_003_002.tif')
+        self.assertEqual(row, 71)
+        self.assertEqual(col, 1)
+        self.assertEqual(run, 'c2')
+
+        [row, col, run] = get_pos_info('X01c1_002_002.tif')
+        self.assertEqual(row, 71)
+        self.assertEqual(col, 71)
+        self.assertEqual(run, 'c1')
+
+        [row, col, run] = get_pos_info('E05c1_003_001.tif')
+        self.assertEqual(row, 13)
+        self.assertEqual(col, 58)
+        self.assertEqual(run, 'c1')
+
+        [row, col, run] = get_pos_info('E05c2_002_003.tif')
+        self.assertEqual(row, 15)
+        self.assertEqual(col, 59)
+        self.assertEqual(run, 'c2')
 
 
 if __name__ == '__main__':
