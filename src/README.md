@@ -1,6 +1,7 @@
 # Scripts for Nikon Single Cell 
 
 ## Nikon Renaming Script
+![Screenshot](../assets/renaming_grid.png)
 ### Requirements
 - Python 3
 ### Run
