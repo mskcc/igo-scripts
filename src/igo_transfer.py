@@ -112,7 +112,11 @@ def transfer_to_igo_dir(igo_dir='.', nikon_dir='.'):
     files = os.listdir(nikon_dir)
     ct = 0
     for file in files:
-        [row, column, run] = get_pos_info(file)
+        try:
+            [row, column, run] = get_pos_info(file)
+        except ValueError as err:
+            print('Did not copy file %s - %s' % (file, err))
+            continue
         try:
             nikon_file = '%s/%s' % (nikon_dir, file)
             copy_file_to_igo_dir(nikon_file, igo_dir, row, column, run)

@@ -30,6 +30,11 @@ class TestIgoTransfer(unittest.TestCase):
                             f = open(file_name, 'w')
                             f.write(file_name)
                             f.close()
+        # Create bad files
+        file_name = '%s/P05c2.tif' % directory
+        f = open(file_name, 'w')
+        f.write(file_name)
+        f.close()
         print('Finished creating mock nikon files')
         return
 
