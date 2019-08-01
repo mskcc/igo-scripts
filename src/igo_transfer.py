@@ -1,7 +1,7 @@
 import os
 import sys
 from shutil import copyfile
-from datetime import date
+from datetime import datetime
 
 LOG = False
 
@@ -129,11 +129,18 @@ def transfer_to_igo_dir(igo_dir='.', nikon_dir='.'):
 
 if __name__ == '__main__':
     """
-    > python3 igo_transfer.py {dest_dir} {src_dir}
-        dest_dir - Where renamed nikon images should be moved to
-        src_dir  - Location of nikon images
+    If called w/o arguments, src & dest directory locations are relative to path script is executed at. Clone repo
+    at level of "Transfer" (Location of nikon images). This will create renamed directories named by their
+    timestamp in a "renamed" directory
+     
+    > python igo-scripts/src/igo_transfer.py
+    
+    Otherwise, call with arguments that specify dest (location renamed nikon images should be moved to) and source
+    (location of nikon images)
+    
+    > python igo-scripts/src/igo_transfer.py {dest_dir} {src_dir}
     """
-    target_dir = '%s/%s' % (os.getcwd(), date.today().strftime("%y%m%d"))
+    target_dir = '%s/renamed/%s' % (os.getcwd(), datetime.now().strftime("%m%d%Y_%H:%M:%S"))
     src_dir = '%s/Transfer' % os.getcwd()
     if len(sys.argv) == 3:
         target_dir = sys.argv[1]
@@ -147,6 +154,6 @@ if __name__ == '__main__':
         sys.exit()
     if not os.path.isdir(target_dir):
         print("Creating %s" % target_dir)
-        os.mkdir(target_dir)
+        os.makedirs(target_dir)
 
     transfer_to_igo_dir(target_dir, src_dir)
