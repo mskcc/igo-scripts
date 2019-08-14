@@ -138,11 +138,28 @@ def transfer_to_igo_dir(igo_dir='.', nikon_dir='.'):
             nikon_file = '%s/%s' % (nikon_dir, file)
             copy_file_to_igo_dir(nikon_file, igo_dir, row, column, run)
             ct += 1
+            log_progress(ct)
         except OSError as err:
             logging.error('Error copying %s to %s' % (nikon_dir, dir))
+    print('Transferred %d files to %s' % (ct, igo_dir))
     logging.info('Transferred %d files to %s' % (ct, igo_dir))
     return
 
+
+def log_progress(file_count):
+    """
+    Logs progress of renaming & transfer. Logs every 10%
+        NOTE - 10368 total files should be transferred
+
+    :param file_count: Number of files transferred so far
+    :return:
+    """
+    # 10368/10 -> 1036
+    if file_count % 1036 == 0:
+        # 10368% -> 103.68
+        msg = "{0:.0f}% transferred".format(file_count/103.68)
+        print(msg)
+        logging.info(msg)
 
 if __name__ == '__main__':
     """
