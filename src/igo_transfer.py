@@ -43,12 +43,22 @@ def extract_well_index(well):
 def get_pos_info(file):
     """
     Parses out the position and run attributes from the name of the input file. Images are currently taken of
-    3x3 positions at a time on a flipped over plate. Due to the flip, left-to-right orientation is reversed, which
-    is why there's logic to take the difference when calculating the column's index.
-        e.g. 'P05c2_002_001.tif' -> [46, 58, 'c2']
+    3x3 positions at a time on a flipped over plate.
+        NOTE - Although a "flip" occurs which inverts the columns relative to how they were spotted. The SmartChip App
+        will account for this, by treating this as the "img_col"
+            img_col:    Column from the perspective of the Nikon App
+            col:        Column from the pserspective of how they were spotted
+                * All perspective is where the top-left corner has the lowest position
 
-    :param (str) file: Name of file, e.g. 'A01c1_002_003.tif'
-    :return str[]: array of row, column, and run
+                    SPOT     --flip-->    NIKON      col->  <-img_col
+                  +--------+           +--------+      +--------+
+                  |XX------|           |------XX|      |------XX|
+                  |--------|           |--------|      |--------|
+                  |--------|           |--------|      |--------|
+                  +--------+           +--------+      +--------+
+
+    :param (str) file: Name of file,                e.g. 'P05c2_003_001.tif'
+    :return str[]: array of row, column, and run    e.g. [46, 15, 'c2']
     """
     file_extension = '.tif'
     striped_file = file.rstrip(file_extension)
@@ -64,9 +74,9 @@ def get_pos_info(file):
 
     # Wells are 3x3
     row = (row_idx * 3) + rel_row
-    col = 73 - ((col_idx * 3) + rel_col)
+    img_col = (col_idx * 3) + rel_col   # SmartChip App reads as "img_col", or column RELATIVE TO NIKON
 
-    return [row, col, run]
+    return [row, img_col, run]
 
 
 def put_directory_if_absent(path, rsc):
@@ -128,11 +138,28 @@ def transfer_to_igo_dir(igo_dir='.', nikon_dir='.'):
             nikon_file = '%s/%s' % (nikon_dir, file)
             copy_file_to_igo_dir(nikon_file, igo_dir, row, column, run)
             ct += 1
+            log_progress(ct)
         except OSError as err:
             logging.error('Error copying %s to %s' % (nikon_dir, dir))
+    print('Transferred %d files to %s' % (ct, igo_dir))
     logging.info('Transferred %d files to %s' % (ct, igo_dir))
     return
 
+
+def log_progress(file_count):
+    """
+    Logs progress of renaming & transfer. Logs every 10%
+        NOTE - 10368 total files should be transferred
+
+    :param file_count: Number of files transferred so far
+    :return:
+    """
+    # 10368/10 -> 1036
+    if file_count % 1036 == 0:
+        # 10368% -> 103.68
+        msg = "{0:.0f}% transferred".format(file_count/103.68)
+        print(msg)
+        logging.info(msg)
 
 if __name__ == '__main__':
     """
