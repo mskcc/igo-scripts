@@ -1,6 +1,8 @@
 import os
 import sys
-from shutil import copyfile
+import time
+import stat
+from shutil import copyfile, rmtree
 from datetime import datetime
 import logging
 import transfer_cfg as cfg
@@ -133,6 +135,39 @@ def transfer_to_igo_dir(igo_dir='.', nikon_dir='.'):
     logging.info('Transferred %d files to %s' % (ct, igo_dir))
     return
 
+"""
+Removes the latest k directories in the file
+@param k, int - Number of directories to remove
+"""
+def rm_latest(target_dir, k):
+    listOfFile = os.listdir(target_dir)
+    if(len(listOfFile) < 15):
+        logging.info("Detected less than 15 directories, not removing any")
+        return
+
+    creation_times = []
+    # Iterate over all the entries
+    for entry in listOfFile:
+        # Create full path
+        full_path = os.path.join(target_dir, entry)
+        # get the the stat_result object
+        fileStatsObj = os.stat ( full_path )
+        # Get the file creation time
+        creation_times.append([entry, fileStatsObj [ stat.ST_CTIME ]])
+
+    sorted_times = sorted(creation_times, key=lambda file_time: (file_time[1] - file_time[1]))
+
+    logging.info("Found the following files in directory: %s" % target_dir)
+    for file_time in sorted_times:
+        logging.info( "File: %s, Time: %s" % (file_time[0], time.ctime ( file_time[1] ) ) )
+
+    entries_to_delete = sorted_times[:k]
+
+    for entry in entries_to_delete:
+        file_to_remove = os.path.join(target_dir, entry[0])
+        
+        logging.info("Removing %s" % file_to_remove)
+        rmtree(file_to_remove)
 
 if __name__ == '__main__':
     """
@@ -150,7 +185,9 @@ if __name__ == '__main__':
     try:
         root = cfg.root
         run = datetime.now().strftime('%m%d%Y.%H%M%S')
-        target_dir = '%s\/renamed\/%s' % (root, run)
+
+        renamed_dir = '%s\/renamed' % root
+        target_dir = '%s\/%s' % (renamed_dir, run)
         src_dir = '%s\/Transfer' % root
         
         setup_logger(root,run) 
@@ -167,5 +204,6 @@ if __name__ == '__main__':
             logging.info('Creating %s' % target_dir)
             os.makedirs(target_dir)          
         transfer_to_igo_dir(target_dir, src_dir)
+        rm_latest(renamed_dir,1)
     except Exception as e:
         logging.error(e)
