@@ -58,7 +58,4 @@ def write_excel(header, matching_table):
     wb.save('matching_table_test.xlsx')
                 
 
-match_table = get_matching_table('D:\IGO tools\STR analysis\STR Genotypes Table.csv')
-header = ['Sample Name', ' AMEL',	' CSF1PO',' D2S1338', ' D3S1358', ' D5S818', ' D7S820', ' D8S1179', ' D13S317', ' D16S539', ' D18S51', ' D19S433', ' D21S11',	' FGA',' ', ' ', ' TH01', ' TPOX', ' vWA']
-write_excel(header, match_table)
 
