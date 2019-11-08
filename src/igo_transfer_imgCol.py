@@ -7,6 +7,13 @@ from datetime import datetime
 import logging
 import transfer_cfg as cfg
 
+CELL_GRID_TRACKER = []
+for i in range(72):
+    GRID_ROW = [0 for i in range(72)]
+    CELL_GRID_TRACKER.append(GRID_ROW)
+
+WELL_SIZE = 8
+
 def setup_logger(directory,run):
     """
     Sets up file program will log to. Kept at [ROOT]/logs/[RUN].log
@@ -23,7 +30,7 @@ def setup_logger(directory,run):
 
 def extract_well_index(well):
     """
-    Extracts the upper-right (row, column) position of a 3x3 well on the plate
+    Extracts the upper-right (row, column) position of a WELL_SIZExWELL_SIZE well on the plate
 
     :param (str) well: Well ('X##', 'X' indicates set of 3-rows and '##' indicates the set of 3-columns. e.g. 'A01')
     :return: int[]
@@ -64,10 +71,16 @@ def get_pos_info(file):
     rel_col = int(attr[1])                          # 'A01c1_002_003' -> 2
     rel_row = int(attr[2])                          # 'A01c1_002_003' -> 3
 
-    # Wells are 3x3
-    row = (row_idx * 3) + rel_row
-    col = (col_idx * 3) + rel_col
+    row = (row_idx * WELL_SIZE) + rel_row
+    col = (col_idx * WELL_SIZE) + rel_col
 
+    '''
+    logging.info(attr)
+    logging.info('col_idx: ' + str(col_idx))
+    logging.info('rel_col: ' + str(rel_col))
+    logging.info('col: ' + str(col))
+    '''
+    
     return [row, col, run]
 
 
@@ -96,9 +109,13 @@ def copy_file_to_igo_dir(nikon_file, igo_dir, row, col, run):
     :param (int) col: igo column
     :param (str) run: run, e.g. 'c1' or 'c2'
     """
+    CELL_GRID_TRACKER[row-1][col-1] = 1
+    
     row = 'R%02d' % row
     col = 'C%02d' % col
     name = '%s_%s_0000_00_%s.tif' % (row, col, run)
+
+
 
     dir_path = igo_dir
     dir_path = put_directory_if_absent(dir_path, run)
@@ -141,7 +158,7 @@ Removes the latest k directories in the file
 """
 def rm_latest(target_dir, k):
     listOfFile = os.listdir(target_dir)
-    if(len(listOfFile) < 15):
+    if(len(listOfFile) < 150):
         logging.info("Detected less than 15 directories, not removing any")
         return
 
@@ -182,6 +199,7 @@ if __name__ == '__main__':
     
     > python igo-scripts/src/igo_transfer.py {dest_dir} {src_dir}
     """
+    print("Running")
     try:
         root = cfg.root
         run = datetime.now().strftime('%m%d%Y.%H%M%S')
@@ -204,6 +222,11 @@ if __name__ == '__main__':
             logging.info('Creating %s' % target_dir)
             os.makedirs(target_dir)          
         transfer_to_igo_dir(target_dir, src_dir)
+        for i in range(len(CELL_GRID_TRACKER)):
+            GRID_ROW = CELL_GRID_TRACKER[i]
+            if 0 in GRID_ROW:
+                logging.error("Row %d did not receive an image" % i)
+                logging.info(GRID_ROW)
         rm_latest(renamed_dir,1)
     except Exception as e:
         logging.error(e)
