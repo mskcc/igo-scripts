@@ -7,12 +7,11 @@ from datetime import datetime
 import logging
 import transfer_cfg as cfg
 
+# This tracks the files successfully transfered. The full 72 x 72 row should be filled
 CELL_GRID_TRACKER = []
 for i in range(72):
     GRID_ROW = [0 for i in range(72)]
     CELL_GRID_TRACKER.append(GRID_ROW)
-
-WELL_SIZE = 8
 
 def setup_logger(directory,run):
     """
@@ -49,7 +48,7 @@ def extract_well_index(well):
     return [col_idx, row_idx]
 
 
-def get_pos_info(file):
+def get_pos_info(file, well_size):
     """
     Parses out the position and run attributes from the name of the input file. Images are currently taken of
     3x3 positions at a time on a flipped over plate. Due to the flip, left-to-right orientation is reversed, which
@@ -71,15 +70,8 @@ def get_pos_info(file):
     rel_col = int(attr[1])                          # 'A01c1_002_003' -> 2
     rel_row = int(attr[2])                          # 'A01c1_002_003' -> 3
 
-    row = (row_idx * WELL_SIZE) + rel_row
-    col = (col_idx * WELL_SIZE) + rel_col
-
-    '''
-    logging.info(attr)
-    logging.info('col_idx: ' + str(col_idx))
-    logging.info('rel_col: ' + str(rel_col))
-    logging.info('col: ' + str(col))
-    '''
+    row = (row_idx * well_size) + rel_row
+    col = (col_idx * well_size) + rel_col
     
     return [row, col, run]
 
@@ -126,7 +118,7 @@ def copy_file_to_igo_dir(nikon_file, igo_dir, row, col, run):
     copy_file = copyfile(nikon_file, file_path)
 
 
-def transfer_to_igo_dir(igo_dir='.', nikon_dir='.'):
+def transfer_to_igo_dir(well_size, igo_dir='.', nikon_dir='.'):
     """
     Transfers nikon files to directory of igo
 
@@ -139,7 +131,7 @@ def transfer_to_igo_dir(igo_dir='.', nikon_dir='.'):
     ct = 0
     for file in files:
         try:
-            [row, column, run] = get_pos_info(file)
+            [row, column, run] = get_pos_info(file, well_size)
         except ValueError as err:
             logging.error('Did not copy file %s - %s' % (file, err))
             continue
@@ -199,7 +191,6 @@ if __name__ == '__main__':
     
     > python igo-scripts/src/igo_transfer.py {dest_dir} {src_dir}
     """
-    print("Running")
     try:
         root = cfg.root
         run = datetime.now().strftime('%m%d%Y.%H%M%S')
@@ -208,20 +199,31 @@ if __name__ == '__main__':
         target_dir = '%s\/%s' % (renamed_dir, run)
         src_dir = '%s\/Transfer' % root
         
-        setup_logger(root,run) 
-        if len(sys.argv) == 3:
-            target_dir = sys.argv[1]
-            src_dir = sys.argv[2]
-        elif len(sys.argv) != 1:
-            print('Usage: \'python3 igo_transfer.py\' or \'python3 igo_transfer.py {dest_dir} {src_dir}\'')
+        setup_logger(root,run)
+        if len(sys.argv) >= 2:
+            well_size = int(sys.argv[1])
+        if len(sys.argv) == 4:
+            target_dir = sys.argv[2]
+            src_dir = sys.argv[3]
+        elif len(sys.argv) != 2:
+            logging.error('Improper args %s' % str(sys.argv))
+            print('Usage: \'python3 igo_transfer.py\' or \'python3 igo_transfer.py {well_size} {dest_dir} {src_dir}\'')
             sys.exit()
         if not os.path.isdir(src_dir):
-            logging.error('Could not find source directory - %s. Use \'python3 igo_transfer.py {dest_dir} {src_dir}\'' % src_dir)
+            logging.error('Invalid Source Dir: %s' % src_dir)
+            print('Could not find source directory - %s. Use \'python3 igo_transfer.py {well_size} {dest_dir} {src_dir}\'' % src_dir)
             sys.exit()
         if not os.path.isdir(target_dir):
             logging.info('Creating %s' % target_dir)
             os.makedirs(target_dir)          
-        transfer_to_igo_dir(target_dir, src_dir)
+        if well_size != 3 and well_size != 8:
+            logging.error('Invalid well size: %d. Must be 3 or 8' % well_size)
+            print('Well size needs to be either 3 or 8')
+            sys.exit()
+
+        print("Running. Well Size: %d" % well_size)
+        logging.info("Running. Well Size: %d" % well_size)
+        transfer_to_igo_dir(well_size, target_dir, src_dir)
         for i in range(len(CELL_GRID_TRACKER)):
             GRID_ROW = CELL_GRID_TRACKER[i]
             if 0 in GRID_ROW:
