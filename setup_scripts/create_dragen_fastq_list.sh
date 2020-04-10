@@ -12,10 +12,12 @@ TYPE=$3
 OUTPUT_CSV=$3_$2.csv
 DRAGEN_CMD=$3_$2
 
+DRAGEN_CSV="/staging/csv/${PROJECT}/${OUTPUT_CSV}"
+
 # Function to write commands to a bash script file
 WRITE_CMD() {
    echo -e "nohup /opt/edico/bin/dragen --ref-dir /staging/GRCh37 \\ \n   --enable-duplicate-marking true \\" > $SAMPLE_CMD
-   echo -e "   --fastq-list /staging/csv/${PROJECT}/${OUTPUT_CSV} \\" >> $SAMPLE_CMD
+   echo -e "   --fastq-list ${DRAGEN_CSV} \\" >> $SAMPLE_CMD
    echo -e "   --fastq-list-sample-id ${SampleID} \\" >> $SAMPLE_CMD
    echo -e "   --output-directory /ephemeral/ \\" >> $SAMPLE_CMD
    echo -e "   --output-file-prefix ${PROJECT}_${SampleID} &" >> $SAMPLE_CMD
@@ -63,5 +65,9 @@ do
       done
    } < $sample_sheet
 done
+
+echo "Next steps - On dragen"
+echo "1) Copy ${OUTPUT_CSV} to ${DRAGEN_CSV} on dragen instance"
+echo "2) Run all ${DRAGEN_CMD}_[SampleID].sh scripts on dragen instance"
 
 
