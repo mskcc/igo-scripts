@@ -17,8 +17,8 @@ WRITE_CMD() {
    echo -e "nohup /opt/edico/bin/dragen --ref-dir /staging/GRCh37 \\ \n   --enable-duplicate-marking true \\" > $SAMPLE_CMD
    echo -e "   --fastq-list /staging/csv/${PROJECT}/${OUTPUT_CSV} \\" >> $SAMPLE_CMD
    echo -e "   --fastq-list-sample-id ${SampleID} \\" >> $SAMPLE_CMD
-   echo -e "   --output-directory /ephemeral/${PROJECT}/${SampleID} \\" >> $SAMPLE_CMD
-   echo -e "   --output-file-prefix ${PROJECT}_${SampleID}" >> $SAMPLE_CMD
+   echo -e "   --output-directory /ephemeral/ \\" >> $SAMPLE_CMD
+   echo -e "   --output-file-prefix ${PROJECT}_${SampleID} &" >> $SAMPLE_CMD
 }
 
 # CREATE CSV
