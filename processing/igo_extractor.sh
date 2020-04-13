@@ -1,4 +1,19 @@
+# Run this in the IGO project file
 HS_METRICS_FILE="___hs.txt"
+HS_METRICS_FIELDS=(
+   TOTAL_READS
+   PF_BASES
+   PF_UNIQUE_READS
+   PF_UQ_READS_ALIGNED
+   PF_BASES_ALIGNED
+   PF_UQ_BASES_ALIGNED
+   MEAN_TARGET_COVERAGE
+   PCT_TARGET_BASES_1X
+   PCT_TARGET_BASES_10X
+   PCT_TARGET_BASES_20X
+   PCT_TARGET_BASES_50X
+   PCT_TARGET_BASES_100X
+)
 
 hs_file=$(find . -type f -name "*${HS_METRICS_FILE}")
 for file in $hs_file; do
@@ -9,6 +24,10 @@ for file in $hs_file; do
    for i in "${!column_list[@]}"; do 
       col="${column_list[$i]}"
       val="${value_list[$i]}"
-      echo "${col}: ${val}"
+      for target_col in ${HS_METRICS_FIELDS[@]}; do
+         if [ "$target_col" = "$col" ]; then
+            echo "${col}: ${val}"
+         fi
+      done
    done
 done
