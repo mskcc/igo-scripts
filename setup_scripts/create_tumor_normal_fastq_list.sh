@@ -20,7 +20,7 @@ DRAGEN_CSV="/staging/csv/${PROJECT}/${OUTPUT_CSV}"
 
 # Function to write commands to a bash script file
 WRITE_CMD() {
-   echo -e "nohup /opt/edico/bin/dragen --ref-dir /staging/hg19 \\ \n   --enable-duplicate-marking true \\" > $SAMPLE_CMD
+   echo -e "nohup /opt/edico/bin/dragen --ref-dir /staging/GRCh37 \\ \n   --enable-duplicate-marking true \\" > $SAMPLE_CMD
    echo -e "   --vc-target-bed ${DRAGEN_BED} \\" >> $SAMPLE_CMD
    echo -e "   --fastq-list ${DRAGEN_CSV} \\" >> $SAMPLE_CMD
    echo -e "   --fastq-list-sample-id ${SampleID} \\" >> $SAMPLE_CMD
