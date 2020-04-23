@@ -24,7 +24,7 @@ WRITE_CMD() {
    echo -e "   --vc-target-bed ${DRAGEN_BED} \\" >> $SAMPLE_CMD
    echo -e "   --fastq-list ${DRAGEN_CSV} \\" >> $SAMPLE_CMD
    echo -e "   --fastq-list-sample-id ${SampleID} \\" >> $SAMPLE_CMD
-   echo -e "   --tumor-fastq-list /staging/csv/10807/wes_10807.csv \\" >> $SAMPLE_CMD
+   echo -e "   --tumor-fastq-list ${DRAGEN_CSV} \\" >> $SAMPLE_CMD
    echo -e "   --tumor-fastq-list-sample-id \\" >> $SAMPLE_CMD
    echo -e "   --output-directory /ephemeral/ \\" >> $SAMPLE_CMD
    echo -e "   --output-file-prefix ${PROJECT}_${SampleID} &" >> $SAMPLE_CMD
