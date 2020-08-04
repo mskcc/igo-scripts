@@ -27,9 +27,13 @@ MD_METRICS_FIELDS=(
    UNMAPPED_READS
    READ_PAIR_DUPLICATES
 )
-
+RNA_METRICS_FILE="___RNA.txt"
+RNA_METRICS_FIELDS=(
+   PCT_RIBOSOMAL_BASES
+)
 hs_file=$(find . -type f -name "*${HS_METRICS_FILE}")
 for file in $hs_file; do
+   echo $file
    # ___hs.txt file is the tab-delimited output of picard
    # e.g. 
    #    ## METRICS CLASS...
@@ -54,6 +58,7 @@ done
 
 am_file=$(find . -type f -name "*${AM_METRICS_FILE}")
 for file in $am_file; do
+   echo $file
    columns=$(grep -A1 "## METRICS CLASS" $file | grep -v "## METRICS CLASS")
    values=$(grep -A5 "## METRICS CLASS" $file | grep -v "## METRICS CLASS" | grep -v "CATEGORY" | grep -v "FIRST_OF_PAIR" | grep -v "SECOND_OF_PAIR") # exclude all but the "PAIR" line
    IFS=$'\t' read -r -a column_list <<< "$columns"      # Transform into list
@@ -72,6 +77,7 @@ done
 
 md_file=$(find . -type f -name "*${MD_METRICS_FILE}")
 for file in $md_file; do
+   echo $file
    columns=$(grep -A1 "## METRICS CLASS" $file | grep -v "## METRICS CLASS")
    values=$(grep -A2 "## METRICS CLASS" $file | grep -v "## METRICS CLASS" | grep -v "LIBRARY")
    IFS=$'\t' read -r -a column_list <<< "$columns"      # Transform into list
@@ -81,6 +87,25 @@ for file in $md_file; do
       val="${value_list[$i]}"
       # Only grab the FIELDS we care about
       for target_col in ${MD_METRICS_FIELDS[@]}; do
+         if [ "$target_col" = "$col" ]; then
+            echo "${col}: ${val}"
+         fi
+      done
+   done
+done
+
+rna_file=$(find . -type f -name "*${RNA_METRICS_FILE}")
+for file in $rna_file; do
+   echo $file
+   columns=$(grep -A1 "## METRICS CLASS" $file | grep -v "## METRICS CLASS")
+   values=$(grep -A2 "## METRICS CLASS" $file | grep -v "## METRICS CLASS" | grep -v "LIBRARY")
+   IFS=$'\t' read -r -a column_list <<< "$columns"      # Transform into list
+   IFS=$'\t' read -r -a value_list <<< "$values"
+   for i in "${!column_list[@]}"; do
+      col="${column_list[$i]}"
+      val="${value_list[$i]}"
+      # Only grab the FIELDS we care about
+      for target_col in ${RNA_METRICS_FIELDS[@]}; do
          if [ "$target_col" = "$col" ]; then
             echo "${col}: ${val}"
          fi
