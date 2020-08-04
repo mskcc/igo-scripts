@@ -34,13 +34,14 @@ while read -r -a argArray; do
       echo "/opt/edico/bin/dragen \\" > $SCRIPT
       echo "   --ref-dir /staging/GRCh37 \\" >> $SCRIPT
       echo "   --enable-duplicate-marking true \\" >> $SCRIPT
+      echo "   --enable-variant-caller true \\" >> $SCRIPT
       echo "   --fastq-list /staging/csv/${NORMAL_ID}.csv \\" >> $SCRIPT
       echo "   --fastq-list-sample-id ${NORMAL_ID} \\" >> $SCRIPT
       echo "   --tumor-fastq-list /staging/csv/${TUMOR_ID}.csv \\" >> $SCRIPT
       echo "   --tumor-fastq-list-sample-id ${TUMOR_ID}  \\" >> $SCRIPT
       echo "   --output-directory ${OUTPUT_DIR} \\" >> $SCRIPT
       echo "   --output-file-prefix ${PROJECT} &&" >> $SCRIPT
-      echo "rsync -a ${OUTPUT_DIR} streidd@juno:/juno/work/isabl/public/igo/WGS_BAMS/DRAGEN_BAMS/variant_calling" >> $SCRIPT
+      echo "(aws s3 sync ${OUTPUT_DIR} s3://dragen.msk/dragen_runs/${PROJECT} &)" >> $SCRIPT
    fi
 done < $COMMAND_CONFIG
 
