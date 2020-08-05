@@ -39,8 +39,8 @@ for sample_sheet in $sample_sheets; do
       RGID=$(echo $line | cut -d',' -f${FCID_IDX})
       OPRT=$(echo $line | cut -d',' -f${OPRT_IDX})
 
-
-      for idx in {1..10}; do
+      # Get Illumina end-segments (have seen these go up to 14)
+      for idx in {1..9}; do
          F1=$(find $dir -type f -name "${SAMP}*L00${LANE}_R1_00${idx}*.fastq.gz")
          F2=$(find $dir -type f -name "${SAMP}*L00${LANE}_R2_00${idx}*.fastq.gz")
          if [[ -z "${F1}" || -z "${F2}"  ]]; then
@@ -49,6 +49,28 @@ for sample_sheet in $sample_sheets; do
          fi
          echo "$RGID,$SAMP,$OPRT,$LANE,$F1,$F2" >> $OUTPUT_CSV
       done
+      for idx in {10..99}; do
+         F1=$(find $dir -type f -name "${SAMP}*L00${LANE}_R1_0${idx}*.fastq.gz")
+         F2=$(find $dir -type f -name "${SAMP}*L00${LANE}_R2_0${idx}*.fastq.gz")
+         if [[ -z "${F1}" || -z "${F2}"  ]]; then
+            printf "\tFound $( expr $idx - 1 ) fastq pairs in for $SAMP ${LANE}\n"
+            break
+         fi
+         echo "$RGID,$SAMP,$OPRT,$LANE,$F1,$F2" >> $OUTPUT_CSV
+      done
    done
 done
-echo "Next steps (On dragen) - Copy ${OUTPUT_CSV} to ${DRAGEN_CSV} on DRAGEN node"
+
+expected_fastq=$(find $PROJECT_DIR -type f -name "*.fastq.gz" | wc -l)
+csv_lines=$(cat ${OUTPUT_CSV} | wc -l)
+actual_pairs=$( expr $csv_lines - 1 )
+expected_pairs=$( expr $expected_fastq / 2 )
+
+echo "Actual Pairs: ${actual_pairs}, Expected_pairs: ${expected_pairs}"
+if [[ $expected_pairs -ne $actual_pairs ]]; then 
+   echo "Warning: Unexpected number of FASTQ pairs"; 
+else
+   echo "CSV looks good!"
+   echo "Next steps (On dragen) - Copy ${OUTPUT_CSV} to ${DRAGEN_CSV} on DRAGEN node"
+fi
+
