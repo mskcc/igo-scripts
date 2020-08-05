@@ -8,7 +8,7 @@ fi
 
 PROJECT_DIR=$1
 PROJECT=$(basename $PROJECT_DIR)
-OUTPUT_CSV=${PROJECT}.csv
+OUTPUT_CSV=${PROJECT}_fastq_list.csv
 DRAGEN_CSV="/staging/csv/${PROJECT}/${OUTPUT_CSV}"
 
 # CSV-Reading
