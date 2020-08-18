@@ -9,7 +9,7 @@ for DIR in $PROJECT_DIRS; do
   for FASTQ in ${FASTQ_FILES}; do
     RGSM=$(grep "${FASTQ}" ${RUN_DIR}/Reports/fastq_list.csv | cut -d',' -f2 | sort | uniq)
     echo "Found: ${RGSM}"
-    SAMPLE_DIR=$DIR/$RGSM
+    SAMPLE_DIR=$DIR/Sample_$RGSM
     mkdir -p $SAMPLE_DIR
     mv $DIR/$RGSM*.fastq.gz $SAMPLE_DIR
     echo "Moved: ${RGSM}"
