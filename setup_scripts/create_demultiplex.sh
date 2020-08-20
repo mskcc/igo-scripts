@@ -15,9 +15,9 @@ CMD="/opt/edico/bin/dragen --bcl-conversion-only true \
   --bcl-sampleproject-subdirectories true \
   --sample-sheet ${SAMPLE_SHEET}"
 
-echo "Writing command: ${CMD}"
-JOB_NAME=$(basename $3 | cut -d'.' -f1)
+JOB_NAME=$(echo ${OUTPUT_DIR} | tr '/' '\n' | tail -1)
 
+echo "Writing command: ${CMD}"
 echo "bsub -J $JOB_NAME -o ${JOB_NAME}.out -e ${JOB_NAME}.err -n48 -q dragen \"${CMD}\"" >  ${JOB_NAME}.sh
 
 
