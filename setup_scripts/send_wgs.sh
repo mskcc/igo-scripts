@@ -7,7 +7,7 @@ if [[ -z $1 || -z $2 ]]; then
 fi
 
 RUN_DIR=$1
-FASTQ_LIST_CSV=${RUN_DIR}/Reports/fastq_list.csv
+FASTQ_LIST_CSV=${RUN_DIR}/Reports/fastq_list_formatted.csv
 REF_DIR=$2
 
 RUN=$(basename $RUN_DIR)  #  $(echo $FASTQ_LIST_CSV | cut -d'/' -f4)
@@ -30,8 +30,7 @@ for PROJECT_DIR in $PROJECT_DIRS; do
     JOB_NAME=DRGN__${PROJECT}__${sample}
     RESULTS_DIR=/igo/stats/DRAGEN/${RUN}/${PROJECT}/${sample}
     printf "bsub -n48 -q dragen -J $JOB_NAME -o $JOB_NAME.out -e $JOB_NAME.err \\
-      \"mkdir -p $RESULTS_DIR && \\ 
-      /opt/edico/bin/dragen --ref-dir ${REF_DIR} \\
+      \"mkdir -p $RESULTS_DIR && /opt/edico/bin/dragen --ref-dir ${REF_DIR} \\
       --fastq-list ${FASTQ_LIST_CSV} \\
       --fastq-list-sample-id ${sample} \\
       --intermediate-results-dir /staging/temp \\
