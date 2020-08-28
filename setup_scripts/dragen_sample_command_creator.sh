@@ -15,12 +15,7 @@ for DIR in $PROJECT_DIRS; do
     if [[ -f "${DIR}/${FASTQ}" ]]; then
       RGSM=$(grep "${FASTQ}" ${RUN_DIR}/Reports/fastq_list.csv | cut -d',' -f2 | sort | uniq)
       echo "Found: ${RGSM}"
-      # Sample directory NEEDS to be pre-fixed with "Sample_"
-      if [[ -z $(echo "${RGSM}" | grep -E "^Sample_*") ]]; then
-        SAMPLE_DIR=$DIR/Sample_$RGSM
-      else
-        SAMPLE_DIR=$DIR/$RGSM
-      fi
+      SAMPLE_DIR=$DIR/$RGSM
       mkdir -p $SAMPLE_DIR
       mv $DIR/$RGSM*.fastq.gz $SAMPLE_DIR
       echo "Moved: ${RGSM} to ${SAMPLE_DIR}"
